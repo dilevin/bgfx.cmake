@@ -40,6 +40,7 @@ function( add_shader ARG_FILE )
 	# Get filename
 	get_filename_component( FILENAME "${ARG_FILE}" NAME_WE )
 
+	get_filename_component(SHADER_TARGET_NAME ${ARG_FILE} NAME_WE)
 	# Determine if fragment or vertex or compute
 	if( ARG_FRAGMENT AND ARG_VERTEX AND ARG_COMPUTE )
 		message( SEND_ERROR "add_shader cannot be called with all FRAGMENT and VERTEX and COMPUTE." )
@@ -164,6 +165,7 @@ function( add_shader ARG_FILE )
 		shaderc_parse( CMD ${OPTIONS} )
 		list( APPEND COMMANDS COMMAND "${CMAKE_COMMAND}" -E make_directory "${ARG_OUTPUT}/${PLATFORM}" )
 		list( APPEND COMMANDS COMMAND "$<TARGET_FILE:shaderc>" ${CMD} )
+		
 	endforeach()
 
 	# Add command
@@ -177,6 +179,9 @@ function( add_shader ARG_FILE )
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 	)
 
+	message(WARNING ${SHADER_TARGET_NAME})
+	#add custom target
+	add_custom_target(${SHADER_TARGET_NAME} DEPENDS ${OUTPUTS})
 	# Add to custom filter
 	source_group( "Shader Files" FILES ${ARG_FILE} )
 endfunction()
@@ -190,6 +195,10 @@ function( shaderc )
 		set( LABEL " (${ARG_LABEL})" )
 	endif()
 	shaderc_parse( CLI FILE ${ARG_FILE} OUTPUT ${ARG_OUTPUT} ${ARG_UNPARSED_ARGUMENTS} )
+
+	message(WARNING ${ARG_FILE})
+	message(WARNING ${ARG_OUTPUT})
+	message(WARNING ${ARG_UNPARSED_ARGUMENTS})
 	get_filename_component( OUTDIR "${ARG_OUTPUT}" ABSOLUTE )
 	get_filename_component( OUTDIR "${OUTDIR}" DIRECTORY )
 	add_custom_command( OUTPUT ${ARG_OUTPUT}
